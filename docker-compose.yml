@@ -1,0 +1,59 @@
+version: '3.3'
+
+services:
+  ui:
+    build: ./ui-web-app-reactjs
+    ports:
+      - 8080:8080
+
+  eureka:
+    build: ./eureka-discovery-server
+    ports:
+      - 8761:8761
+    depends_on:
+      - ui
+
+  zuul:
+    build: ./zuul-api-gateway
+    ports:
+      - 9999:9999
+    #environment: 
+      # Important for clients to register with eureka
+      #- eureka.client.serviceUrl.defaultZone=http://eureka:8761/eureka
+    #  - zuul.routes.shoe.url=http://shoe:1002/api/v1
+    depends_on:
+      - eureka
+      - ui
+  
+  shoe:
+    build: ./shoes-microservice-spring-boot
+    ports:
+      - 1002:1002
+    #environment: 
+      # Important for clients to register with eureka
+      #- eureka.client.serviceUrl.defaultZone=http://eureka:8761/eureka/
+    depends_on:
+      - eureka
+      - zuul
+
+  cart:
+    build: ./cart-microservice-nodejs
+    ports:
+      - 1004:1004
+    #environment: 
+      # Important for clients to register with eureka
+      #- eureka.client.serviceUrl.defaultZone=http://eureka:8761/eureka/
+    depends_on:
+      - zuul
+
+  wishlist:
+    build: ./wishlist-microservice-python
+#    volumes:
+#      - ./wishlist-microservice-python:.
+    ports:
+      - 1003:1003
+    #environment: 
+      # Important for clients to register with eureka
+      #- eureka.client.serviceUrl.defaultZone=http://eureka:8761/eureka/
+    depends_on:
+      - zuul
