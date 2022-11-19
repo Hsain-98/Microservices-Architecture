@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wishlist
+  namespace: ms
+  labels:
+    app: wishlist
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: wishlist
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: wishlist
+    spec:
+      containers:
+      - name: wishlist
+        image: wishlist:lts
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 1003
+          name: wishlist
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: wishlist
+  namespace: ms
+spec:
+  selector:
+    app: wishlist
+  type: ClusterIP
+  ports:
+  - name: wishlist
+    port: 1003
+    targetPort: 1003

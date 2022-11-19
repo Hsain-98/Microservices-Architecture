@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eureka
+  namespace: ms
+  labels:
+    app: eureka
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: eureka
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: eureka
+    spec:
+      containers:
+      - name: eureka
+        image: eureka:lts
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8761
+          name: eureka
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: eureka
+  namespace: ms
+spec:
+  selector:
+    app: eureka
+  type: NodePort
+  ports:
+  - name: eureka
+    port: 8761
+    targetPort: 8761
+    nodePort: 32000
